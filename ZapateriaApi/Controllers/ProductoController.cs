@@ -4,6 +4,7 @@ using System.Data;
 using Microsoft.AspNetCore.Mvc;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.Globalization;
 
 namespace ZapateriaApi.Controllers
 {
@@ -40,6 +41,7 @@ namespace ZapateriaApi.Controllers
                             {
                                 var item = new
                                 {
+                                    ID_PRODUCTO = reader["ID_PRODUCTO"],
                                     NOMBRE = reader["NOMBRE"],
                                     DESCRIPCION = reader["DESCRIPCION"],
                                     PRECIO = reader["PRECIO"],
@@ -70,11 +72,18 @@ namespace ZapateriaApi.Controllers
         {
             string connectionString = _configuration.GetConnectionString("connectionDB");
 
+
             try
             {
                 using (OracleConnection connection = new OracleConnection(connectionString))
                 {
                     await connection.OpenAsync();
+
+                    using (OracleCommand configCmd = new OracleCommand("ALTER SESSION SET NLS_NUMERIC_CHARACTERS = '.,'", connection))
+                    {
+                        await configCmd.ExecuteNonQueryAsync();
+                    }
+
 
                     using (OracleCommand cmd = new OracleCommand("INSERTAR_PRODUCTO", connection))
                     {
@@ -112,6 +121,11 @@ namespace ZapateriaApi.Controllers
                 using (OracleConnection connection = new OracleConnection(connectionString))
                 {
                     await connection.OpenAsync();
+
+                    using (OracleCommand configCmd = new OracleCommand("ALTER SESSION SET NLS_NUMERIC_CHARACTERS = '.,'", connection))
+                    {
+                        await configCmd.ExecuteNonQueryAsync();
+                    }
 
                     using (OracleCommand cmd = new OracleCommand("ACTUALIZAR_PRODUCTO", connection))
                     {
