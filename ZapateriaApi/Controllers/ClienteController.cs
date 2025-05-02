@@ -16,7 +16,7 @@ namespace ZapateriaApi.Controllers
         }
 
         [HttpGet("listar")]
-        public async Task<IActionResult> GetVistaPlanilla()
+        public async Task<IActionResult> GetVistaCliente()
         {
             string connectionString = _configuration.GetConnectionString("connectionDB");
 
@@ -59,10 +59,12 @@ namespace ZapateriaApi.Controllers
             }
         }
 
-        /*
-
-        [HttpGet("vista-proveedores")]
-        public async Task<IActionResult> GetProveedor()
+        [HttpPost("insertar")]
+        public async Task<IActionResult> InsertarCliente(
+         [FromForm] string nombre,
+         [FromForm] string apellido,
+         [FromForm] string direccion,
+         [FromForm] int idUsuario)
         {
             string connectionString = _configuration.GetConnectionString("connectionDB");
 
@@ -72,39 +74,34 @@ namespace ZapateriaApi.Controllers
                 {
                     await connection.OpenAsync();
 
-                    string sql = "SELECT * FROM proveedor";
-
-                    using (OracleCommand command = new OracleCommand(sql, connection))
+                    using (OracleCommand cmd = new OracleCommand("INSERTAR_CLIENTE", connection))
                     {
-                        using (OracleDataReader reader = await command.ExecuteReaderAsync())
-                        {
-                            var resultados = new List<object>();
+                        cmd.CommandType = CommandType.StoredProcedure;
 
-                            while (await reader.ReadAsync())
-                            {
-                                var item = new
-                                {
-                                    nombre_proveedor = reader["nombre_proveedor"],
-                                    nit = reader["nit"],
-                                    telefono = reader["telefono"],
-                                };
+                        cmd.Parameters.Add("p_nombre", OracleDbType.Varchar2).Value = nombre;
+                        cmd.Parameters.Add("p_apellido", OracleDbType.Varchar2).Value = apellido;
+                        cmd.Parameters.Add("p_direccion", OracleDbType.Varchar2).Value = direccion;
+                        cmd.Parameters.Add("p_usuario", OracleDbType.Int32).Value = idUsuario;
 
-                                resultados.Add(item);
-                            }
-
-                            return Ok(resultados);
-                        }
+                        await cmd.ExecuteNonQueryAsync();
                     }
 
+                    return Ok(new { message = "Cliente insertado correctamente" });
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error al acceder a Oracle: {ex.Message}");
+                return StatusCode(500, $"Error al insertar cliente: {ex.Message}");
             }
         }
-        [HttpGet("vista-productos")]
-        public async Task<IActionResult> GetProducto()
+
+        [HttpPut("actualizar")]
+        public async Task<IActionResult> ActualizarCliente(
+        [FromForm] int idCLiente,
+        [FromForm] string nombre,
+        [FromForm] string apellido,
+        [FromForm] string direccion,
+        [FromForm] int idUsuario)
         {
             string connectionString = _configuration.GetConnectionString("connectionDB");
 
@@ -114,39 +111,55 @@ namespace ZapateriaApi.Controllers
                 {
                     await connection.OpenAsync();
 
-                    string sql = "SELECT * FROM producto";
-
-                    using (OracleCommand command = new OracleCommand(sql, connection))
+                    using (OracleCommand cmd = new OracleCommand("ACTUALIZAR_CLIENTE", connection))
                     {
-                        using (OracleDataReader reader = await command.ExecuteReaderAsync())
-                        {
-                            var resultados = new List<object>();
+                        cmd.CommandType = CommandType.StoredProcedure;
 
-                            while (await reader.ReadAsync())
-                            {
-                                var item = new
-                                {
-                                    nombre_producto = reader["nombre_producto"],
-                                    descripcion_producto = reader["descripcion_producto"],
-                                    precio_compra = reader["precio_compra"],
-                                    precio_venta = reader["precio_venta"],
-                                    cantidad = reader["cantidad"],
-                                    url = reader["url"],
-                                };
+                        cmd.Parameters.Add("p_id_cliente", OracleDbType.Int32).Value = idCLiente;
+                        cmd.Parameters.Add("p_nombre", OracleDbType.Varchar2).Value = nombre;
+                        cmd.Parameters.Add("p_apellido", OracleDbType.Varchar2).Value = apellido;
+                        cmd.Parameters.Add("p_direccion", OracleDbType.Varchar2).Value = direccion;
+                        cmd.Parameters.Add("p_usuario", OracleDbType.Int32).Value = idUsuario;
 
-                                resultados.Add(item);
-                            }
-
-                            return Ok(resultados);
-                        }
+                        await cmd.ExecuteNonQueryAsync();
                     }
 
+                    return Ok(new { message = "Cliente actualizado correctamente" });
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error al acceder a Oracle: {ex.Message}");
+                return StatusCode(500, $"Error al actualizar cliente: {ex.Message}");
             }
-        }*/
+        }
+
+        [HttpPut("cambiar-estado")]
+        public async Task<IActionResult> CambiarEstadoProducto([FromForm] int idCliente)
+        {
+            string connectionString = _configuration.GetConnectionString("connectionDB");
+
+            try
+            {
+                using (OracleConnection connection = new OracleConnection(connectionString))
+                {
+                    await connection.OpenAsync();
+
+                    using (OracleCommand cmd = new OracleCommand("CAMBIAR_ESTADO_CLIENTE", connection))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.Add("p_id_cliente", OracleDbType.Int32).Value = idCliente;
+
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+
+                    return Ok(new { message = "Estado del cliente cambiado a 'I'" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al cambiar estado: {ex.Message}");
+            }
+        }
     }
 }

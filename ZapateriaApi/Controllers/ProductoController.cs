@@ -97,7 +97,45 @@ namespace ZapateriaApi.Controllers
             }
         }
 
-        [HttpPost("cambiar-estado")]
+        [HttpPut("actualizar")]
+        public async Task<IActionResult> ActualizarProducto(
+        [FromForm] int idProducto,
+        [FromForm] string nombre,
+        [FromForm] string descripcion,
+        [FromForm] decimal precio,
+        [FromForm] int idUsuario)
+        {
+            string connectionString = _configuration.GetConnectionString("connectionDB");
+
+            try
+            {
+                using (OracleConnection connection = new OracleConnection(connectionString))
+                {
+                    await connection.OpenAsync();
+
+                    using (OracleCommand cmd = new OracleCommand("ACTUALIZAR_PRODUCTO", connection))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.Add("p_id_producto", OracleDbType.Int32).Value = idProducto;
+                        cmd.Parameters.Add("p_nombre", OracleDbType.Varchar2).Value = nombre;
+                        cmd.Parameters.Add("p_descripcion", OracleDbType.Varchar2).Value = descripcion;
+                        cmd.Parameters.Add("p_precio", OracleDbType.Decimal).Value = precio;
+                        cmd.Parameters.Add("p_id_usuario", OracleDbType.Int32).Value = idUsuario;
+
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+
+                    return Ok(new { message = "Producto actualizado correctamente" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al actualizar producto: {ex.Message}");
+            }
+        }
+
+        [HttpPut("cambiar-estado")]
         public async Task<IActionResult> CambiarEstadoProducto([FromForm] int idProducto)
         {
             string connectionString = _configuration.GetConnectionString("connectionDB");
