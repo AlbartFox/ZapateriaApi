@@ -26,7 +26,7 @@ namespace ZapateriaApi.Controllers
                 {
                     await connection.OpenAsync();
 
-                    string sql = "SELECT * FROM cliente";
+                    string sql = "SELECT * FROM VW_CLIENTE";
 
                     using (OracleCommand command = new OracleCommand(sql, connection))
                     {
@@ -38,10 +38,10 @@ namespace ZapateriaApi.Controllers
                             {
                                 var item = new
                                 {
+                                    ID_CLIENTE = reader["ID_CLIENTE"],
                                     NOMBRE = reader["NOMBRE"],
                                     APELLIDO = reader["APELLIDO"],
-                                    DIRECCION = reader["DIRECCION"],
-                                    COD_EMPRESA = reader["COD_EMPRESA"]
+                                    DIRECCION = reader["DIRECCION"]
                                 };
 
                                 resultados.Add(item);
@@ -97,12 +97,15 @@ namespace ZapateriaApi.Controllers
 
         [HttpPut("actualizar")]
         public async Task<IActionResult> ActualizarCliente(
-        [FromForm] int idCLiente,
+        [FromForm] int idCliente,
         [FromForm] string nombre,
         [FromForm] string apellido,
         [FromForm] string direccion,
         [FromForm] int idUsuario)
         {
+            // Verificar los parámetros recibidos
+            Console.WriteLine($"idCliente: {idCliente}, nombre: {nombre}, apellido: {apellido}, direccion: {direccion}, idUsuario: {idUsuario}");
+
             string connectionString = _configuration.GetConnectionString("connectionDB");
 
             try
@@ -115,11 +118,11 @@ namespace ZapateriaApi.Controllers
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
 
-                        cmd.Parameters.Add("p_id_cliente", OracleDbType.Int32).Value = idCLiente;
+                        cmd.Parameters.Add("p_id_cliente", OracleDbType.Int32).Value = idCliente;
                         cmd.Parameters.Add("p_nombre", OracleDbType.Varchar2).Value = nombre;
                         cmd.Parameters.Add("p_apellido", OracleDbType.Varchar2).Value = apellido;
                         cmd.Parameters.Add("p_direccion", OracleDbType.Varchar2).Value = direccion;
-                        cmd.Parameters.Add("p_usuario", OracleDbType.Int32).Value = idUsuario;
+                        cmd.Parameters.Add("p_id_usuario", OracleDbType.Int32).Value = idUsuario;
 
                         await cmd.ExecuteNonQueryAsync();
                     }
@@ -132,6 +135,7 @@ namespace ZapateriaApi.Controllers
                 return StatusCode(500, $"Error al actualizar cliente: {ex.Message}");
             }
         }
+
 
         [HttpPut("cambiar-estado")]
         public async Task<IActionResult> CambiarEstadoProducto([FromForm] int idCliente)
