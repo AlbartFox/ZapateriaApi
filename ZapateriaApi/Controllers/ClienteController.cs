@@ -38,13 +38,10 @@ namespace ZapateriaApi.Controllers
                             {
                                 var item = new
                                 {
-                                    ID_CLIENTE = reader["ID_CLIENTE"],
                                     NOMBRE = reader["NOMBRE"],
                                     APELLIDO = reader["APELLIDO"],
                                     DIRECCION = reader["DIRECCION"],
-                                    COD_EMPRESA = reader["COD_EMPRESA"],
-                                    ID_USUARIO = reader["ID_USUARIO"],
-                                    ESTADO = reader["ESTADO"]
+                                    COD_EMPRESA = reader["COD_EMPRESA"]
                                 };
 
                                 resultados.Add(item);
