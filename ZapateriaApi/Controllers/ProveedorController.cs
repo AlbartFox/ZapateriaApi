@@ -37,7 +37,7 @@ namespace ZapateriaApi.Controllers
                             {
                                 var item = new
                                 {
-                                    NOMBRE = reader["NOMBRE"],
+                                    NOMBRES = reader["NOMBRE"],
                                     DIRECCION = reader["DIRECCION"],
                                     COD_EMPRESA = reader["COD_EMPRESA"]
                                 };
