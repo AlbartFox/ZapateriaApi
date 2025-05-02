@@ -26,7 +26,7 @@ namespace ZapateriaApi.Controllers
                 {
                     await connection.OpenAsync();
 
-                    string sql = "SELECT * FROM proveedor";
+                    string sql = "SELECT * FROM VW_PROVEEDOR";
 
                     using (OracleCommand command = new OracleCommand(sql, connection))
                     {
@@ -38,9 +38,9 @@ namespace ZapateriaApi.Controllers
                             {
                                 var item = new
                                 {
+                                    ID_PROVEEDOR = reader["ID_PROVEEDOR"],
                                     NOMBRE = reader["NOMBRE"],
                                     DIRECCION = reader["DIRECCION"],
-                                    COD_EMPRESA = reader["COD_EMPRESA"]
                                 };
 
                                 resultados.Add(item);
@@ -114,7 +114,7 @@ namespace ZapateriaApi.Controllers
                         cmd.Parameters.Add("p_id_proveedor", OracleDbType.Int32).Value = idProveedor;
                         cmd.Parameters.Add("p_nombre", OracleDbType.Varchar2).Value = nombre;
                         cmd.Parameters.Add("p_direccion", OracleDbType.Varchar2).Value = direccion;
-                        cmd.Parameters.Add("p_usuario", OracleDbType.Int32).Value = idUsuario;
+                        cmd.Parameters.Add("p_id_usuario", OracleDbType.Int32).Value = idUsuario;
 
                         await cmd.ExecuteNonQueryAsync();
                     }
